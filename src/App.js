@@ -34,13 +34,14 @@ function formatDay(dateStr) {
 
 class App extends React.Component {
   state = {
-    location: "lisbon",
+    location: "",
     isLoading: false,
     displayLocation: "",
     weather: {},
   };
 
   fetchWeather = async () => {
+    if (this.state.location.length < 2) return this.setState({ weather: {} });
     this.setState({ isLoading: true });
     try {
       // 1) Getting location (geocoding)
@@ -61,7 +62,6 @@ class App extends React.Component {
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=${timezone}&daily=weathercode,temperature_2m_max,temperature_2m_min`
       );
       const weatherData = await weatherRes.json();
-      console.log(typeof weatherData.daily);
       this.setState({ weather: weatherData.daily });
     } catch (err) {
       console.err(err);
@@ -71,6 +71,20 @@ class App extends React.Component {
   };
 
   setLocation = (e) => this.setState({ location: e.target.value });
+
+  // Similar to useEffect with on mount
+  componentDidMount() {
+    this.setState({ location: localStorage.getItem("location") || "" });
+  }
+
+  // similar to useEffect()[location]
+  componentDidUpdate(prevProps, prevStates) {
+    if (this.state.location !== prevStates.location) {
+      this.fetchWeather();
+      localStorage.setItem("location", this.state.location);
+    }
+  }
+
   render() {
     return (
       <div className="app">
@@ -79,7 +93,6 @@ class App extends React.Component {
           location={this.state.location}
           onChangeLocation={this.setLocation}
         />
-        <button onClick={this.fetchWeather}>Get the location</button>
         {this.state.isLoading && <p className="loader">Loading...</p>}
         {this.state.weather.weathercode && (
           <Weather
@@ -110,6 +123,9 @@ class Input extends React.Component {
 }
 
 class Weather extends React.Component {
+  componentWillUnmount() {
+    console.log("Weather will unmount");
+  }
   render() {
     const {
       temperature_2m_min: min,
@@ -118,7 +134,6 @@ class Weather extends React.Component {
       weathercode: codes,
     } = this.props.weather;
 
-    console.log(codes);
     return (
       <div>
         <h3>Weather {this.props.location}</h3>
