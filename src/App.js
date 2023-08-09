@@ -77,7 +77,7 @@ class App extends React.Component {
         <h1>Classy Weather</h1>
         <Input
           location={this.state.location}
-          onChangeLocation={this.setPosition}
+          onChangeLocation={this.setLocation}
         />
         <button onClick={this.fetchWeather}>Get the location</button>
         {this.state.isLoading && <p className="loader">Loading...</p>}
