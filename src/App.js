@@ -42,8 +42,8 @@ class App extends React.Component {
 
   fetchWeather = async () => {
     if (this.state.location.length < 2) return this.setState({ weather: {} });
-    this.setState({ isLoading: true });
     try {
+      this.setState({ isLoading: true });
       // 1) Getting location (geocoding)
       const geoRes = await fetch(
         `https://geocoding-api.open-meteo.com/v1/search?name=${this.state.location}`
